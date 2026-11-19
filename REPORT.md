@@ -155,8 +155,8 @@ Dart и Flutter для меня новые; Лаб 3 написана на C#, �
 
 **Что стало проще.**
 
-- *Порог входа почти исчез.* Синтаксис Dart (null-safety, `sealed`/`switch`
-  -выражения, records `(String, String)`, `case final rate?` в коллекциях),
+- *Порог входа почти исчез.* Синтаксис Dart (null-safety, `switch`-выражения,
+  records `(String, String)`, `case final rate?` в коллекциях, `enum` с полями),
   устройство Flutter (виджеты, `ChangeNotifier`, `ListenableBuilder`) и
   библиотеки (`fl_chart`, `shared_preferences`) не пришлось изучать заранее.
   ИИ сразу использовал идиоматичные конструкции, и разбираться можно было
