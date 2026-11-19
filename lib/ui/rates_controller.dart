@@ -92,9 +92,13 @@ class RatesController extends ChangeNotifier {
 
   void _ensurePairAvailable() {
     final codes = availableCodes;
-    if (!codes.contains(from)) from = codes.contains('EUR') ? 'EUR' : codes.first;
+    if (!codes.contains(from)) {
+      from = codes.contains('EUR') ? 'EUR' : codes.first;
+    }
     if (!codes.contains(to) || to == from) {
-      to = from == baseCurrency ? (codes.contains('EUR') ? 'EUR' : codes.last) : baseCurrency;
+      to = from == baseCurrency
+          ? (codes.contains('EUR') ? 'EUR' : codes.last)
+          : baseCurrency;
     }
   }
 

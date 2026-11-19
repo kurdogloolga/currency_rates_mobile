@@ -50,7 +50,10 @@ class SharedPrefsRateCache implements RateCache {
   }
 
   @override
-  Future<void> saveAll(Iterable<DailyRates> days, {DateTime? retainSince}) async {
+  Future<void> saveAll(
+    Iterable<DailyRates> days, {
+    DateTime? retainSince,
+  }) async {
     final all = await loadAll();
     for (final day in days) {
       all[day.date] = day;

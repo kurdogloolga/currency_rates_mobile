@@ -2,17 +2,30 @@ import 'package:intl/intl.dart';
 
 import '../domain/models.dart';
 
-final _money = NumberFormat.decimalPatternDigits(locale: 'ru', decimalDigits: 2);
-final _rate4 = NumberFormat.decimalPatternDigits(locale: 'ru', decimalDigits: 4);
-final _rate6 = NumberFormat.decimalPatternDigits(locale: 'ru', decimalDigits: 6);
-final _percent = NumberFormat.decimalPatternDigits(locale: 'ru', decimalDigits: 2);
+final _money = NumberFormat.decimalPatternDigits(
+  locale: 'ru',
+  decimalDigits: 2,
+);
+final _rate4 = NumberFormat.decimalPatternDigits(
+  locale: 'ru',
+  decimalDigits: 4,
+);
+final _rate6 = NumberFormat.decimalPatternDigits(
+  locale: 'ru',
+  decimalDigits: 6,
+);
+final _percent = NumberFormat.decimalPatternDigits(
+  locale: 'ru',
+  decimalDigits: 2,
+);
 
 /// Денежная сумма: «2 014,11».
 String formatMoney(double value) => _money.format(value);
 
 /// Курс: 4 знака, для очень малых значений — 6 («0,000123»).
-String formatRate(double value) =>
-    value.abs() < 0.01 && value != 0 ? _rate6.format(value) : _rate4.format(value);
+String formatRate(double value) => value.abs() < 0.01 && value != 0
+    ? _rate6.format(value)
+    : _rate4.format(value);
 
 /// Курс со знаком: «+0,0905», «−0,0120».
 String formatSignedRate(double value) {
@@ -41,7 +54,9 @@ String formatMoment(DateTime moment, DateTime now) {
   final day = dateOnly(moment);
   final today = dateOnly(now);
   if (day == today) return 'сегодня в ${_time(moment)}';
-  if (day == today.subtract(const Duration(days: 1))) return 'вчера в ${_time(moment)}';
+  if (day == today.subtract(const Duration(days: 1))) {
+    return 'вчера в ${_time(moment)}';
+  }
   return '${formatDate(moment)} в ${_time(moment)}';
 }
 
@@ -52,7 +67,7 @@ String pluralDays(int n) {
   final word = (mod10 == 1 && mod100 != 11)
       ? 'день'
       : (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14))
-          ? 'дня'
-          : 'дней';
+      ? 'дня'
+      : 'дней';
   return '$n $word';
 }

@@ -3,7 +3,13 @@ import 'dart:io';
 import 'package:currency_rates/data/bnm_xml_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-String valute(String code, String nominal, String value, {String name = 'Валюта'}) => '''
+String valute(
+  String code,
+  String nominal,
+  String value, {
+  String name = 'Валюта',
+}) =>
+    '''
   <Valute ID="1">
     <NumCode>000</NumCode>
     <CharCode>$code</CharCode>
@@ -33,7 +39,9 @@ void main() {
     });
 
     test('нормализует курс по номиналу: Value / Nominal', () {
-      final result = parser.parse(doc('01.11.2026', [valute('JPY', '100', '12.5')]));
+      final result = parser.parse(
+        doc('01.11.2026', [valute('JPY', '100', '12.5')]),
+      );
       expect(result.rateFor('JPY')!.mdlPerUnit, closeTo(0.125, 1e-12));
     });
 
@@ -44,10 +52,9 @@ void main() {
     });
 
     test('MDL всегда имеет курс 1 и участвует в кросс-курсе', () {
-      final result = parser.parse(doc('01.11.2026', [
-        valute('EUR', '1', '20'),
-        valute('USD', '1', '16'),
-      ]));
+      final result = parser.parse(
+        doc('01.11.2026', [valute('EUR', '1', '20'), valute('USD', '1', '16')]),
+      );
       expect(result.mdlPerUnit('MDL'), 1);
       expect(result.crossRate('EUR', 'USD'), closeTo(1.25, 1e-12));
       expect(result.crossRate('MDL', 'EUR'), closeTo(0.05, 1e-12));
@@ -62,24 +69,48 @@ void main() {
     test('пустая строка', () => expectFailure(''));
     test('только пробелы', () => expectFailure('   \n '));
     test('HTML вместо XML', () => expectFailure('<html><body>Error</body>'));
-    test('другой корневой элемент', () => expectFailure('<Rates Date="01.11.2026"/>'));
+    test(
+      'другой корневой элемент',
+      () => expectFailure('<Rates Date="01.11.2026"/>'),
+    );
     test('нет даты', () => expectFailure('<ValCurs name="x"></ValCurs>'));
     test('дата в другом формате', () => expectFailure(doc('2026-11-01', [])));
     test('несуществующая дата', () => expectFailure(doc('31.02.2026', [])));
-    test('нулевой курс', () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '0')])));
-    test('отрицательный номинал',
-        () => expectFailure(doc('01.11.2026', [valute('EUR', '-1', '20')])));
-    test('запятая вместо точки',
-        () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '20,14')])));
-    test('NaN', () => expectFailure(doc('01.11.2026', [valute('EUR', '1', 'NaN')])));
-    test('пустое значение', () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '')])));
-    test('некорректный код валюты',
-        () => expectFailure(doc('01.11.2026', [valute('eu', '1', '20')])));
-    test('пустое название',
-        () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '20', name: ' ')])));
-    test('дублирующаяся валюта', () => expectFailure(doc('01.11.2026', [
-          valute('EUR', '1', '20'),
-          valute('EUR', '1', '21'),
-        ])));
+    test(
+      'нулевой курс',
+      () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '0')])),
+    );
+    test(
+      'отрицательный номинал',
+      () => expectFailure(doc('01.11.2026', [valute('EUR', '-1', '20')])),
+    );
+    test(
+      'запятая вместо точки',
+      () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '20,14')])),
+    );
+    test(
+      'NaN',
+      () => expectFailure(doc('01.11.2026', [valute('EUR', '1', 'NaN')])),
+    );
+    test(
+      'пустое значение',
+      () => expectFailure(doc('01.11.2026', [valute('EUR', '1', '')])),
+    );
+    test(
+      'некорректный код валюты',
+      () => expectFailure(doc('01.11.2026', [valute('eu', '1', '20')])),
+    );
+    test(
+      'пустое название',
+      () => expectFailure(
+        doc('01.11.2026', [valute('EUR', '1', '20', name: ' ')]),
+      ),
+    );
+    test(
+      'дублирующаяся валюта',
+      () => expectFailure(
+        doc('01.11.2026', [valute('EUR', '1', '20'), valute('EUR', '1', '21')]),
+      ),
+    );
   });
 }

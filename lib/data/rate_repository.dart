@@ -91,15 +91,17 @@ class RateRepository {
 
     for (var i = 0; i < toFetch.length; i += parallelRequests) {
       final chunk = toFetch.skip(i).take(parallelRequests);
-      final results = await Future.wait(chunk.map((date) async {
-        try {
-          return await client.fetch(date);
-        } on SourceException catch (e) {
-          failures++;
-          lastError = e;
-          return null;
-        }
-      }));
+      final results = await Future.wait(
+        chunk.map((date) async {
+          try {
+            return await client.fetch(date);
+          } on SourceException catch (e) {
+            failures++;
+            lastError = e;
+            return null;
+          }
+        }),
+      );
       fetched.addAll(results.whereType<DailyRates>());
       // Нет сети — нет смысла перебирать оставшиеся 30 дат по тайм-ауту.
       if (lastError != null &&
@@ -116,8 +118,10 @@ class RateRepository {
 
     try {
       if (fetched.isNotEmpty) {
-        await cache.saveAll(fetched,
-            retainSince: today.subtract(const Duration(days: retentionDays)));
+        await cache.saveAll(
+          fetched,
+          retainSince: today.subtract(const Duration(days: retentionDays)),
+        );
       }
       if (failures == 0) await cache.setLastSync(_now());
     } catch (_) {
@@ -125,16 +129,19 @@ class RateRepository {
     }
 
     final first = dates.first;
-    final result = merged.values
-        .where((d) => !d.date.isBefore(first) && !d.date.isAfter(today))
-        .toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+    final result =
+        merged.values
+            .where((d) => !d.date.isBefore(first) && !d.date.isAfter(today))
+            .toList()
+          ..sort((a, b) => a.date.compareTo(b.date));
 
     if (result.isEmpty) {
-      throw RatesUnavailableException(lastError == null
-          ? 'Источник не опубликовал курсы за выбранный период'
-          : '${lastError!.message}. Сохранённых данных пока нет — '
-              'подключитесь к интернету и повторите попытку.');
+      throw RatesUnavailableException(
+        lastError == null
+            ? 'Источник не опубликовал курсы за выбранный период'
+            : '${lastError!.message}. Сохранённых данных пока нет — '
+                  'подключитесь к интернету и повторите попытку.',
+      );
     }
 
     return RatesHistory(

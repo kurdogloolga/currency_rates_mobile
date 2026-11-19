@@ -34,10 +34,10 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color pageBg;
 
   Color trend(Trend t) => switch (t) {
-        Trend.up => trendUp,
-        Trend.down => trendDown,
-        Trend.flat => trendFlat,
-      };
+    Trend.up => trendUp,
+    Trend.down => trendDown,
+    Trend.flat => trendFlat,
+  };
 
   static const light = AppColors(
     headerGradient: [Brand.sapphireDeep, Brand.sapphire, Brand.indigo],
@@ -65,7 +65,8 @@ class AppColors extends ThemeExtension<AppColors> {
   AppColors copyWith() => this;
 
   @override
-  AppColors lerp(AppColors? other, double t) => t < 0.5 ? this : (other ?? this);
+  AppColors lerp(AppColors? other, double t) =>
+      t < 0.5 ? this : (other ?? this);
 }
 
 extension AppColorsX on BuildContext {
@@ -75,27 +76,42 @@ extension AppColorsX on BuildContext {
 ThemeData buildTheme(Brightness brightness) {
   final isDark = brightness == Brightness.dark;
   final app = isDark ? AppColors.dark : AppColors.light;
-  final scheme = ColorScheme.fromSeed(
-    seedColor: Brand.sapphire,
-    brightness: brightness,
-  ).copyWith(
-    primary: isDark ? const Color(0xFF9DB4FF) : Brand.sapphire,
-    secondary: Brand.gold,
-    onSecondary: const Color(0xFF2B1F00),
-    surface: isDark ? const Color(0xFF161C2B) : Colors.white,
-    surfaceContainerHighest: isDark ? const Color(0xFF232B3F) : const Color(0xFFE9EDF7),
-    surfaceContainerHigh: isDark ? const Color(0xFF1D2436) : const Color(0xFFF0F3FA),
-  );
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: Brand.sapphire,
+        brightness: brightness,
+      ).copyWith(
+        primary: isDark ? const Color(0xFF9DB4FF) : Brand.sapphire,
+        secondary: Brand.gold,
+        onSecondary: const Color(0xFF2B1F00),
+        surface: isDark ? const Color(0xFF161C2B) : Colors.white,
+        surfaceContainerHighest: isDark
+            ? const Color(0xFF232B3F)
+            : const Color(0xFFE9EDF7),
+        surfaceContainerHigh: isDark
+            ? const Color(0xFF1D2436)
+            : const Color(0xFFF0F3FA),
+      );
 
-  final base = ThemeData(useMaterial3: true, colorScheme: scheme, brightness: brightness);
+  final base = ThemeData(
+    useMaterial3: true,
+    colorScheme: scheme,
+    brightness: brightness,
+  );
   final text = base.textTheme;
 
   return base.copyWith(
     scaffoldBackgroundColor: app.pageBg,
     extensions: [app],
     textTheme: text.copyWith(
-      headlineMedium: text.headlineMedium?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
-      headlineSmall: text.headlineSmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
+      headlineMedium: text.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
+      ),
+      headlineSmall: text.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+      ),
       titleLarge: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
       titleMedium: text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       labelLarge: text.labelLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -106,15 +122,23 @@ ThemeData buildTheme(Brightness brightness) {
       color: scheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: isDark ? 0.25 : 0.45)),
+        side: BorderSide(
+          color: scheme.outlineVariant.withValues(alpha: isDark ? 0.25 : 0.45),
+        ),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: scheme.surfaceContainerHigh,
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18),
+        borderSide: BorderSide.none,
+      ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
         borderSide: BorderSide(color: scheme.primary, width: 1.6),
@@ -133,11 +157,17 @@ ThemeData buildTheme(Brightness brightness) {
       elevation: 0,
       backgroundColor: scheme.surface,
       indicatorColor: Brand.gold.withValues(alpha: isDark ? 0.28 : 0.30),
-      labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
-            fontSize: 12,
-            fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
-            color: states.contains(WidgetState.selected) ? scheme.onSurface : scheme.onSurfaceVariant,
-          )),
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (states) => TextStyle(
+          fontSize: 12,
+          fontWeight: states.contains(WidgetState.selected)
+              ? FontWeight.w700
+              : FontWeight.w500,
+          color: states.contains(WidgetState.selected)
+              ? scheme.onSurface
+              : scheme.onSurfaceVariant,
+        ),
+      ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
@@ -145,7 +175,9 @@ ThemeData buildTheme(Brightness brightness) {
     ),
     bottomSheetTheme: const BottomSheetThemeData(
       showDragHandle: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
     ),
   );
 }

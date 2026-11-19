@@ -50,7 +50,15 @@ const Map<String, String> _names = {
 };
 
 /// Валюты, которые показываются первыми в списках.
-const List<String> popularCurrencies = ['MDL', 'EUR', 'USD', 'RON', 'UAH', 'RUB', 'GBP'];
+const List<String> popularCurrencies = [
+  'MDL',
+  'EUR',
+  'USD',
+  'RON',
+  'UAH',
+  'RUB',
+  'GBP',
+];
 
 String currencyName(String code, {String? fallback}) =>
     _names[code] ?? fallback ?? code;
@@ -80,7 +88,11 @@ List<CurrencyOption> currencyOptions(DailyRates day) {
   final options = <CurrencyOption>[
     const CurrencyOption(baseCurrency, 'Молдавский лей', 1),
     for (final r in day.rates)
-      CurrencyOption(r.code, currencyName(r.code, fallback: r.name), r.mdlPerUnit),
+      CurrencyOption(
+        r.code,
+        currencyName(r.code, fallback: r.name),
+        r.mdlPerUnit,
+      ),
   ];
   int rank(String code) {
     final i = popularCurrencies.indexOf(code);

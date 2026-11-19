@@ -39,7 +39,9 @@ class BnmXmlParser {
     try {
       document = XmlDocument.parse(body);
     } on XmlException {
-      throw const RateParseException('Ответ источника не является корректным XML');
+      throw const RateParseException(
+        'Ответ источника не является корректным XML',
+      );
     }
 
     final root = document.rootElement;
@@ -63,12 +65,14 @@ class BnmXmlParser {
       if (name.isEmpty) {
         throw RateParseException('Пустое название валюты $code');
       }
-      rates.add(CurrencyRate(
-        code: code,
-        name: name,
-        nominal: _positiveNumber(valute, 'Nominal', code),
-        value: _positiveNumber(valute, 'Value', code),
-      ));
+      rates.add(
+        CurrencyRate(
+          code: code,
+          name: name,
+          nominal: _positiveNumber(valute, 'Nominal', code),
+          value: _positiveNumber(valute, 'Value', code),
+        ),
+      );
     }
 
     return DailyRates(date: date, rates: rates);
@@ -102,7 +106,9 @@ class BnmXmlParser {
     }
     final value = double.parse(raw);
     if (value <= 0) {
-      throw RateParseException('Значение $tag для $code должно быть больше нуля');
+      throw RateParseException(
+        'Значение $tag для $code должно быть больше нуля',
+      );
     }
     return value;
   }

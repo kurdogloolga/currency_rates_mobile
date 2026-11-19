@@ -11,7 +11,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final controller = RatesController(
-    repository: RateRepository(client: BnmClient(), cache: SharedPrefsRateCache(prefs)),
+    repository: RateRepository(
+      client: BnmClient(),
+      cache: SharedPrefsRateCache(prefs),
+    ),
     prefs: prefs,
   );
   runApp(CurrencyApp(controller: controller));
