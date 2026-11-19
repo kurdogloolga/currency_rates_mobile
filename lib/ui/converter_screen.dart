@@ -11,7 +11,11 @@ import 'widgets/common.dart';
 import 'widgets/rate_chart.dart';
 
 class ConverterScreen extends StatefulWidget {
-  const ConverterScreen({super.key, required this.controller, required this.onOpenWeek});
+  const ConverterScreen({
+    super.key,
+    required this.controller,
+    required this.onOpenWeek,
+  });
 
   final RatesController controller;
   final VoidCallback onOpenWeek;
@@ -56,7 +60,9 @@ class _ConverterScreenState extends State<ConverterScreen> {
     final rate = pair.isValid ? latest.crossRate(c.from, c.to) : null;
     final inverse = pair.isValid ? latest.crossRate(c.to, c.from) : null;
 
-    final week = pair.isValid ? pairSeries(history.lastDays(7, c.today), c.from, c.to) : <RatePoint>[];
+    final week = pair.isValid
+        ? pairSeries(history.lastDays(7, c.today), c.from, c.to)
+        : <RatePoint>[];
     final weekStats = const StatisticsCalculator().compute(week);
 
     return RefreshIndicator(
@@ -65,92 +71,101 @@ class _ConverterScreenState extends State<ConverterScreen> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          Stack(
-            children: [
-              GradientHeader(
-                title: 'Конвертер валют',
-                subtitle: 'Официальные курсы Национального банка Молдовы',
-                status: DataStatusPill(history: history, now: c.now, onRetry: c.load),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(16, MediaQuery.paddingOf(context).top + 190, 16, 0),
-                child: Card(
-                  elevation: 6,
-                  shadowColor: Brand.sapphireDeep.withValues(alpha: 0.25),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('Сумма', style: text.labelLarge?.copyWith(color: scheme.onSurfaceVariant)),
-                        const SizedBox(height: 8),
-                        TextField(
-                          key: const Key('amountField'),
-                          controller: _amount,
-                          onChanged: (_) => setState(() {}),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          style: text.headlineSmall,
-                          decoration: InputDecoration(
-                            hintText: '0,00',
-                            errorText: amount.error,
-                            suffixText: c.from,
-                            suffixStyle: text.titleMedium?.copyWith(color: scheme.primary),
-                            prefixIcon: const Icon(Icons.payments_outlined),
-                          ),
+          GradientHeader(
+            title: 'Конвертер валют',
+            subtitle: 'Официальные курсы Национального банка Молдовы',
+            status: DataStatusPill(
+              history: history,
+              now: c.now,
+              onRetry: c.load,
+            ),
+            child: Card(
+              elevation: 6,
+              shadowColor: Brand.sapphireDeep.withValues(alpha: 0.25),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Сумма',
+                      style: text.labelLarge?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      key: const Key('amountField'),
+                      controller: _amount,
+                      onChanged: (_) => setState(() {}),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      style: text.headlineSmall,
+                      decoration: InputDecoration(
+                        hintText: '0,00',
+                        errorText: amount.error,
+                        suffixText: c.from,
+                        suffixStyle: text.titleMedium?.copyWith(
+                          color: scheme.primary,
                         ),
-                        const SizedBox(height: 16),
-                        Stack(
-                          alignment: Alignment.center,
+                        prefixIcon: const Icon(Icons.payments_outlined),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Column(
                           children: [
-                            Column(
-                              children: [
-                                CurrencyButton(
-                                  label: 'Из',
-                                  code: c.from,
-                                  onTap: () => _pick(isFrom: true),
-                                ),
-                                const SizedBox(height: 10),
-                                CurrencyButton(
-                                  label: 'В',
-                                  code: c.to,
-                                  onTap: () => _pick(isFrom: false),
-                                ),
-                              ],
+                            CurrencyButton(
+                              label: 'Из',
+                              code: c.from,
+                              onTap: () => _pick(isFrom: true),
                             ),
-                            Positioned(
-                              right: 52,
-                              child: Material(
-                                color: Brand.gold,
-                                shape: CircleBorder(
-                                    side: BorderSide(color: scheme.surface, width: 4)),
-                                elevation: 2,
-                                child: IconButton(
-                                  tooltip: 'Поменять местами',
-                                  onPressed: c.swap,
-                                  icon: const Icon(Icons.swap_vert_rounded,
-                                      color: Color(0xFF2B1F00)),
-                                ),
-                              ),
+                            const SizedBox(height: 10),
+                            CurrencyButton(
+                              label: 'В',
+                              code: c.to,
+                              onTap: () => _pick(isFrom: false),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        _ResultBlock(
-                          amountError: amount.error,
-                          pairError: pair.error,
-                          amount: amount.value,
-                          rate: rate,
-                          inverse: inverse,
-                          from: c.from,
-                          to: c.to,
-                          date: latest.date,
+                        Positioned(
+                          right: 52,
+                          child: Material(
+                            color: Brand.gold,
+                            shape: CircleBorder(
+                              side: BorderSide(color: scheme.surface, width: 4),
+                            ),
+                            elevation: 2,
+                            child: IconButton(
+                              tooltip: 'Поменять местами',
+                              onPressed: c.swap,
+                              icon: const Icon(
+                                Icons.swap_vert_rounded,
+                                color: Color(0xFF2B1F00),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    _ResultBlock(
+                      amountError: amount.error,
+                      pairError: pair.error,
+                      amount: amount.value,
+                      rate: rate,
+                      inverse: inverse,
+                      from: c.from,
+                      to: c.to,
+                      date: latest.date,
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -208,20 +223,28 @@ class _ResultBlock extends StatelessWidget {
 
     Widget body;
     if (pairError != null) {
-      body = Row(children: [
-        Icon(Icons.info_outline_rounded, color: scheme.error),
-        const SizedBox(width: 8),
-        Expanded(child: Text(pairError!, style: TextStyle(color: scheme.error))),
-      ]);
+      body = Row(
+        children: [
+          Icon(Icons.info_outline_rounded, color: scheme.error),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(pairError!, style: TextStyle(color: scheme.error)),
+          ),
+        ],
+      );
     } else if (amountError != null || amount == null || rate == null) {
-      body = Text('Введите сумму, чтобы увидеть результат',
-          style: TextStyle(color: scheme.onSurfaceVariant));
+      body = Text(
+        'Введите сумму, чтобы увидеть результат',
+        style: TextStyle(color: scheme.onSurfaceVariant),
+      );
     } else {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${formatMoney(amount!)} $from =',
-              style: text.bodyLarge?.copyWith(color: scheme.onSurfaceVariant)),
+          Text(
+            '${formatMoney(amount!)} $from =',
+            style: text.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
+          ),
           const SizedBox(height: 2),
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -229,7 +252,10 @@ class _ResultBlock extends StatelessWidget {
             child: Text(
               '${formatMoney(amount! * rate!)} $to',
               key: const Key('conversionResult'),
-              style: text.headlineMedium?.copyWith(color: scheme.primary, fontSize: 34),
+              style: text.headlineMedium?.copyWith(
+                color: scheme.primary,
+                fontSize: 34,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -242,12 +268,24 @@ class _ResultBlock extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(children: [
-            Icon(Icons.account_balance_rounded, size: 14, color: scheme.onSurfaceVariant),
-            const SizedBox(width: 6),
-            Text('Официальный курс НБМ на ${formatDate(date)}',
-                style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-          ]),
+          Row(
+            children: [
+              Icon(
+                Icons.account_balance_rounded,
+                size: 14,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Официальный курс НБМ на ${formatDate(date)}',
+                  style: text.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       );
     }
@@ -259,7 +297,10 @@ class _ResultBlock extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: scheme.primary.withValues(alpha: 0.12)),
       ),
-      child: AnimatedSize(duration: const Duration(milliseconds: 200), child: body),
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 200),
+        child: body,
+      ),
     );
   }
 }
@@ -278,7 +319,10 @@ class _RateChip extends StatelessWidget {
         color: scheme.surface,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(text, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }
@@ -316,12 +360,19 @@ class _WeekTeaser extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$from → $to за 7 дней',
-                            style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          '$from → $to за 7 дней',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         const SizedBox(height: 2),
-                        Text('${formatSignedRate(stats.absoluteChange)} $to',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        Text(
+                          '${formatSignedRate(stats.absoluteChange)} $to',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -333,10 +384,13 @@ class _WeekTeaser extends StatelessWidget {
               const SizedBox(height: 6),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text('Подробная аналитика →',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w700)),
+                child: Text(
+                  'Подробная аналитика →',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
           ),
@@ -358,7 +412,9 @@ class _PopularRates extends StatelessWidget {
     final latest = days.last;
     final previous = days.length > 1 ? days[days.length - 2] : null;
     final scheme = Theme.of(context).colorScheme;
-    final codes = popularCurrencies.where((c) => c != baseCurrency && latest.rateFor(c) != null);
+    final codes = popularCurrencies.where(
+      (c) => c != baseCurrency && latest.rateFor(c) != null,
+    );
 
     return SectionCard(
       title: 'Популярные валюты',
@@ -367,49 +423,77 @@ class _PopularRates extends StatelessWidget {
       child: Column(
         children: [
           for (final code in codes)
-            Builder(builder: (context) {
-              final now = latest.mdlPerUnit(code)!;
-              final before = previous?.mdlPerUnit(code);
-              final pct = before == null ? 0.0 : (now - before) / before * 100;
-              final trend = const StatisticsCalculator().trendFor(pct);
-              final color = context.colors.trend(trend);
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    FlagBadge(code: code, size: 38),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(code, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          Text(currencyName(code),
-                              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(formatRate(now),
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+            Builder(
+              builder: (context) {
+                final now = latest.mdlPerUnit(code)!;
+                final before = previous?.mdlPerUnit(code);
+                final pct = before == null
+                    ? 0.0
+                    : (now - before) / before * 100;
+                final trend = const StatisticsCalculator().trendFor(pct);
+                final color = context.colors.trend(trend);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      FlagBadge(code: code, size: 38),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(TrendBadge.iconFor(trend), size: 15, color: color),
-                            const SizedBox(width: 3),
-                            Text(formatPercent(pct),
-                                style: TextStyle(
-                                    color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                            Text(
+                              code,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(
+                              currencyName(code),
+                              style: TextStyle(
+                                color: scheme.onSurfaceVariant,
+                                fontSize: 12.5,
+                              ),
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            formatRate(now),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                TrendBadge.iconFor(trend),
+                                size: 15,
+                                color: color,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                formatPercent(pct),
+                                style: TextStyle(
+                                  color: color,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
