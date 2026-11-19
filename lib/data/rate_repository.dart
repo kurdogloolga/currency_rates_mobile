@@ -79,7 +79,11 @@ class RateRepository {
     } catch (_) {
       cached = {};
     }
-    final toFetch = dates.where((d) => d == today || !cached.containsKey(d)).toList();
+    // Сначала свежие даты: если связь оборвётся посреди загрузки,
+    // самое важное (сегодняшний курс) уже будет получено.
+    final toFetch = dates.reversed
+        .where((d) => d == today || !cached.containsKey(d))
+        .toList();
 
     final fetched = <DailyRates>[];
     SourceException? lastError;
