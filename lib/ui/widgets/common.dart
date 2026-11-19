@@ -7,84 +7,124 @@ import '../currency_meta.dart';
 import '../format.dart';
 import '../theme.dart';
 
-/// Градиентная шапка экрана с декоративными кругами.
+/// Градиентная шапка экрана с декоративными кругами. Высота подстраивается
+/// под текст (крупный системный шрифт не обрезается), а [child] — карточка,
+/// которая на [overlap] пикселей «наезжает» на нижний край градиента.
 class GradientHeader extends StatelessWidget {
   const GradientHeader({
     super.key,
     required this.title,
     required this.subtitle,
+    required this.child,
     this.status,
-    this.height = 236,
+    this.overlap = 56,
   });
 
   final String title;
   final String subtitle;
   final Widget? status;
-  final double height;
+  final Widget child;
+  final double overlap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final top = MediaQuery.paddingOf(context).top;
-    return Container(
-      height: height + top,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: colors.headerGradient,
-        ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
-      child: Stack(
-        clipBehavior: Clip.hardEdge,
-        children: [
-          Positioned(right: -60, top: -40, child: _Bubble(size: 200, opacity: 0.08)),
-          Positioned(right: 60, top: top + 70, child: _Bubble(size: 70, opacity: 0.07)),
-          Positioned(left: -30, bottom: -50, child: _Bubble(size: 140, opacity: 0.06)),
-          Positioned(
-            right: 24,
-            top: top + 22,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(color: Brand.gold, shape: BoxShape.circle),
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: overlap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: colors.headerGradient,
+              ),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(32),
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(24, top + 18, 24, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'КУРСЫ НБМ',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(32),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    right: -60,
+                    top: -40,
+                    child: _Bubble(size: 200, opacity: 0.08),
+                  ),
+                  Positioned(
+                    right: 60,
+                    top: top + 70,
+                    child: _Bubble(size: 70, opacity: 0.07),
+                  ),
+                  Positioned(
+                    left: -30,
+                    bottom: -50,
+                    child: _Bubble(size: 140, opacity: 0.06),
+                  ),
+                  Positioned(
+                    right: 24,
+                    top: top + 22,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
                         color: Brand.gold,
-                        letterSpacing: 2.2,
-                        fontWeight: FontWeight.w800,
+                        shape: BoxShape.circle,
                       ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.78),
-                      ),
-                ),
-                if (status != null) ...[const SizedBox(height: 14), status!],
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, top + 18, 24, 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'КУРСЫ НБМ',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Brand.gold,
+                      letterSpacing: 2.2,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium
+                        ?.copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: Colors.white.withValues(alpha: 0.78)),
+                  ),
+                  if (status != null) ...[const SizedBox(height: 14), status!],
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: child,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -97,18 +137,23 @@ class _Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withValues(alpha: opacity),
-        ),
-      );
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.white.withValues(alpha: opacity),
+    ),
+  );
 }
 
 /// Плашка актуальности данных в шапке. В офлайне — заметная янтарная.
 class DataStatusPill extends StatelessWidget {
-  const DataStatusPill({super.key, required this.history, required this.now, this.onRetry});
+  const DataStatusPill({
+    super.key,
+    required this.history,
+    required this.now,
+    this.onRetry,
+  });
 
   final RatesHistory history;
   final DateTime now;
@@ -124,15 +169,17 @@ class DataStatusPill extends StatelessWidget {
     final IconData icon;
     if (offline) {
       icon = Icons.cloud_off_rounded;
-      text = 'Нет связи с НБМ · данные на ${formatDate(latest)}'
-          '${sync != null ? ' · обновлено ${formatMoment(sync, now)}' : ''}';
+      text = 'Нет связи · сохранённый курс на ${formatDate(latest)}';
     } else {
       icon = Icons.verified_rounded;
-      text = 'Курс на ${formatDate(latest)}'
+      text =
+          'Курс на ${formatDate(latest)}'
           '${sync != null ? ' · обновлено ${formatMoment(sync, now)}' : ''}';
     }
 
-    final bg = offline ? const Color(0xFFFFE08A) : Colors.white.withValues(alpha: 0.14);
+    final bg = offline
+        ? const Color(0xFFFFE08A)
+        : Colors.white.withValues(alpha: 0.14);
     final fg = offline ? const Color(0xFF4A3300) : Colors.white;
 
     return Material(
@@ -153,7 +200,11 @@ class DataStatusPill extends StatelessWidget {
                   text,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               if (offline && onRetry != null) ...[
@@ -181,7 +232,10 @@ class OfflineNotice extends StatelessWidget {
     final sync = history.lastSync;
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: c.warningBg, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: c.warningBg,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -191,8 +245,13 @@ class OfflineNotice extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Работа без сети',
-                    style: TextStyle(color: c.warningFg, fontWeight: FontWeight.w700)),
+                Text(
+                  'Работа без сети',
+                  style: TextStyle(
+                    color: c.warningFg,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   'Показаны сохранённые курсы, актуальные на ${formatDate(history.latest.date)}.'
@@ -235,7 +294,10 @@ class CurrencyButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: compact ? 10 : 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: compact ? 10 : 12,
+          ),
           child: Row(
             children: [
               FlagBadge(code: code, size: compact ? 34 : 40),
@@ -244,15 +306,21 @@ class CurrencyButton extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label,
-                        style: text.labelSmall?.copyWith(color: scheme.onSurfaceVariant)),
+                    Text(
+                      label,
+                      style: text.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
                     Text(code, style: text.titleMedium),
                     if (!compact)
                       Text(
                         currencyName(code),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                        style: text.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                   ],
                 ),
@@ -300,12 +368,17 @@ Future<String?> showCurrencyPicker(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (_) => _CurrencyPicker(options: options, selected: selected, title: title),
+    builder: (_) =>
+        _CurrencyPicker(options: options, selected: selected, title: title),
   );
 }
 
 class _CurrencyPicker extends StatefulWidget {
-  const _CurrencyPicker({required this.options, required this.selected, required this.title});
+  const _CurrencyPicker({
+    required this.options,
+    required this.selected,
+    required this.title,
+  });
 
   final List<CurrencyOption> options;
   final String selected;
@@ -323,7 +396,12 @@ class _CurrencyPickerState extends State<_CurrencyPicker> {
     final scheme = Theme.of(context).colorScheme;
     final q = query.trim().toLowerCase();
     final filtered = widget.options
-        .where((o) => q.isEmpty || o.code.toLowerCase().contains(q) || o.name.toLowerCase().contains(q))
+        .where(
+          (o) =>
+              q.isEmpty ||
+              o.code.toLowerCase().contains(q) ||
+              o.name.toLowerCase().contains(q),
+        )
         .toList();
 
     return DraggableScrollableSheet(
@@ -338,7 +416,10 @@ class _CurrencyPickerState extends State<_CurrencyPicker> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  widget.title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 12),
                 TextField(
                   autofocus: false,
@@ -354,8 +435,10 @@ class _CurrencyPickerState extends State<_CurrencyPicker> {
           Expanded(
             child: filtered.isEmpty
                 ? Center(
-                    child: Text('Ничего не найдено',
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                    child: Text(
+                      'Ничего не найдено',
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
                   )
                 : ListView.builder(
                     controller: scroll,
@@ -364,15 +447,33 @@ class _CurrencyPickerState extends State<_CurrencyPicker> {
                       final o = filtered[i];
                       final isSelected = o.code == widget.selected;
                       return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 2,
+                        ),
                         leading: FlagBadge(code: o.code),
-                        title: Text(o.code, style: const TextStyle(fontWeight: FontWeight.w700)),
-                        subtitle: Text(o.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        title: Text(
+                          o.code,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        subtitle: Text(
+                          o.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: isSelected
-                            ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                            ? Icon(
+                                Icons.check_circle_rounded,
+                                color: scheme.primary,
+                              )
                             : Text(
-                                o.code == baseCurrency ? 'базовая' : '${formatRate(o.mdlPerUnit)} MDL',
-                                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                                o.code == baseCurrency
+                                    ? 'базовая'
+                                    : '${formatRate(o.mdlPerUnit)} MDL',
+                                style: TextStyle(
+                                  color: scheme.onSurfaceVariant,
+                                  fontSize: 13,
+                                ),
                               ),
                         selected: isSelected,
                         onTap: () => Navigator.of(context).pop(o.code),
@@ -388,24 +489,32 @@ class _CurrencyPickerState extends State<_CurrencyPicker> {
 
 /// Значок тенденции: иконка + подпись + процент (цвет никогда не один).
 class TrendBadge extends StatelessWidget {
-  const TrendBadge({super.key, required this.trend, this.percent, this.large = false});
+  const TrendBadge({
+    super.key,
+    required this.trend,
+    this.percent,
+    this.large = false,
+  });
 
   final Trend trend;
   final double? percent;
   final bool large;
 
   static IconData iconFor(Trend t) => switch (t) {
-        Trend.up => Icons.trending_up_rounded,
-        Trend.down => Icons.trending_down_rounded,
-        Trend.flat => Icons.trending_flat_rounded,
-      };
+    Trend.up => Icons.trending_up_rounded,
+    Trend.down => Icons.trending_down_rounded,
+    Trend.flat => Icons.trending_flat_rounded,
+  };
 
   @override
   Widget build(BuildContext context) {
     final color = context.colors.trend(trend);
     final size = large ? 15.0 : 13.0;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: large ? 12 : 10, vertical: large ? 7 : 5),
+      padding: EdgeInsets.symmetric(
+        horizontal: large ? 12 : 10,
+        vertical: large ? 7 : 5,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(40),
@@ -416,8 +525,14 @@ class TrendBadge extends StatelessWidget {
           Icon(iconFor(trend), size: size + 5, color: color),
           const SizedBox(width: 6),
           Text(
-            percent == null ? trend.label : '${trend.label} · ${formatPercent(percent!)}',
-            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: size),
+            percent == null
+                ? trend.label
+                : '${trend.label} · ${formatPercent(percent!)}',
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: size,
+            ),
           ),
         ],
       ),
@@ -461,8 +576,12 @@ class SectionCard extends StatelessWidget {
                       children: [
                         Text(title!, style: text.titleMedium),
                         if (subtitle != null)
-                          Text(subtitle!,
-                              style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                          Text(
+                            subtitle!,
+                            style: text.bodySmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -489,12 +608,21 @@ class LoadingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(width: 44, height: 44, child: CircularProgressIndicator(strokeWidth: 3.5)),
+          const SizedBox(
+            width: 44,
+            height: 44,
+            child: CircularProgressIndicator(strokeWidth: 3.5),
+          ),
           const SizedBox(height: 20),
-          Text('Загружаем курсы НБМ…', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Загружаем курсы НБМ…',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 6),
-          Text('Получаем историю за 30 дней',
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(
+            'Получаем историю за 30 дней',
+            style: TextStyle(color: scheme.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -502,7 +630,12 @@ class LoadingView extends StatelessWidget {
 }
 
 class ErrorView extends StatelessWidget {
-  const ErrorView({super.key, required this.message, required this.onRetry, this.busy = false});
+  const ErrorView({
+    super.key,
+    required this.message,
+    required this.onRetry,
+    this.busy = false,
+  });
 
   final String message;
   final VoidCallback onRetry;
@@ -524,11 +657,18 @@ class ErrorView extends StatelessWidget {
                 color: scheme.errorContainer,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.cloud_off_rounded, size: 46, color: scheme.onErrorContainer),
+              child: Icon(
+                Icons.cloud_off_rounded,
+                size: 46,
+                color: scheme.onErrorContainer,
+              ),
             ),
             const SizedBox(height: 24),
-            Text('Курсы недоступны',
-                style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
+            Text(
+              'Курсы недоступны',
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 10),
             Text(
               message,
@@ -540,11 +680,17 @@ class ErrorView extends StatelessWidget {
               onPressed: busy ? null : onRetry,
               icon: busy
                   ? const SizedBox(
-                      width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Icon(Icons.refresh_rounded),
               label: const Text('Повторить'),
               style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 16,
+                ),
               ),
             ),
           ],
@@ -567,12 +713,22 @@ class EmptyDataView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Column(
         children: [
-          Icon(Icons.insert_chart_outlined_rounded, size: 56, color: scheme.outline),
+          Icon(
+            Icons.insert_chart_outlined_rounded,
+            size: 56,
+            color: scheme.outline,
+          ),
           const SizedBox(height: 12),
-          Text('Нет данных за период', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Нет данных за период',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 6),
-          Text(message,
-              textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -580,5 +736,6 @@ class EmptyDataView extends StatelessWidget {
 }
 
 /// Доля дней с данными, если период заполнен не полностью.
-String? coverageNote(int have, int want) =>
-    have >= want ? null : 'Данные есть за ${pluralDays(have)} из $want — часть дат не загрузилась';
+String? coverageNote(int have, int want) => have >= want
+    ? null
+    : 'Данные есть за ${pluralDays(have)} из $want — часть дат не загрузилась';

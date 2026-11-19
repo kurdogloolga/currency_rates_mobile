@@ -33,10 +33,10 @@ class BnmClient {
   final BnmXmlParser parser;
 
   static Uri uriFor(DateTime date) => Uri.https(
-        'www.bnm.md',
-        '/ru/official_exchange_rates',
-        {'get_xml': '1', 'date': formatDate(date)},
-      );
+    'www.bnm.md',
+    '/ru/official_exchange_rates',
+    {'get_xml': '1', 'date': formatDate(date)},
+  );
 
   /// Курсы на [date].
   ///
@@ -50,19 +50,27 @@ class BnmClient {
       response = await _http.get(uriFor(requested)).timeout(timeout);
     } on TimeoutException {
       throw const SourceException(
-          SourceErrorKind.timeout, 'Источник курсов не ответил вовремя');
+        SourceErrorKind.timeout,
+        'Источник курсов не ответил вовремя',
+      );
     } on SocketException {
       throw const SourceException(
-          SourceErrorKind.network, 'Нет подключения к интернету или источник недоступен');
+        SourceErrorKind.network,
+        'Нет подключения к интернету или источник недоступен',
+      );
     } on http.ClientException {
       throw const SourceException(
-          SourceErrorKind.network, 'Нет подключения к интернету или источник недоступен');
+        SourceErrorKind.network,
+        'Нет подключения к интернету или источник недоступен',
+      );
     }
 
     if (response.statusCode == 404) return null;
     if (response.statusCode != 200) {
-      throw SourceException(SourceErrorKind.httpStatus,
-          'Источник курсов временно недоступен (HTTP ${response.statusCode})');
+      throw SourceException(
+        SourceErrorKind.httpStatus,
+        'Источник курсов временно недоступен (HTTP ${response.statusCode})',
+      );
     }
 
     final String body;
@@ -70,7 +78,9 @@ class BnmClient {
       body = utf8.decode(response.bodyBytes);
     } on FormatException {
       throw const SourceException(
-          SourceErrorKind.invalidData, 'Источник вернул данные в неверной кодировке');
+        SourceErrorKind.invalidData,
+        'Источник вернул данные в неверной кодировке',
+      );
     }
 
     final DailyRates rates;
@@ -81,8 +91,10 @@ class BnmClient {
     }
 
     if (rates.date.isAfter(requested)) {
-      throw SourceException(SourceErrorKind.invalidData,
-          'Источник вернул курс на ${formatDate(rates.date)} вместо ${formatDate(requested)}');
+      throw SourceException(
+        SourceErrorKind.invalidData,
+        'Источник вернул курс на ${formatDate(rates.date)} вместо ${formatDate(requested)}',
+      );
     }
     if (rates.rates.isEmpty) return null;
     return rates;

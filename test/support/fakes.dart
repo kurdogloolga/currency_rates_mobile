@@ -10,7 +10,10 @@ class InMemoryRateCache implements RateCache {
   Future<Map<DateTime, DailyRates>> loadAll() async => {...store};
 
   @override
-  Future<void> saveAll(Iterable<DailyRates> days, {DateTime? retainSince}) async {
+  Future<void> saveAll(
+    Iterable<DailyRates> days, {
+    DateTime? retainSince,
+  }) async {
     for (final d in days) {
       store[d.date] = d;
     }
@@ -27,7 +30,8 @@ class InMemoryRateCache implements RateCache {
 }
 
 /// XML НБМ для даты [date] с курсами EUR и USD.
-String bnmXml(DateTime date, {double eur = 20, double usd = 18}) => '''
+String bnmXml(DateTime date, {double eur = 20, double usd = 18}) =>
+    '''
 <?xml version="1.0" encoding="UTF-8"?>
 <ValCurs Date="${formatDate(date)}" name="Обменные ставки">
   <Valute ID="47"><NumCode>978</NumCode><CharCode>EUR</CharCode><Nominal>1</Nominal><Name>Евро</Name><Value>$eur</Value></Valute>
@@ -35,9 +39,9 @@ String bnmXml(DateTime date, {double eur = 20, double usd = 18}) => '''
 </ValCurs>''';
 
 DailyRates day(DateTime date, {double eur = 20, double usd = 18}) => DailyRates(
-      date: date,
-      rates: [
-        CurrencyRate(code: 'EUR', name: 'Евро', nominal: 1, value: eur),
-        CurrencyRate(code: 'USD', name: 'Доллар США', nominal: 1, value: usd),
-      ],
-    );
+  date: date,
+  rates: [
+    CurrencyRate(code: 'EUR', name: 'Евро', nominal: 1, value: eur),
+    CurrencyRate(code: 'USD', name: 'Доллар США', nominal: 1, value: usd),
+  ],
+);

@@ -5,9 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/fakes.dart';
 
 List<RatePoint> series(List<double> values) => [
-      for (var i = 0; i < values.length; i++)
-        RatePoint(DateTime.utc(2026, 11, 1 + i), values[i]),
-    ];
+  for (var i = 0; i < values.length; i++)
+    RatePoint(DateTime.utc(2026, 11, 1 + i), values[i]),
+];
 
 void main() {
   const calc = StatisticsCalculator();
@@ -81,7 +81,10 @@ void main() {
         day(DateTime.utc(2026, 11, 2), eur: 21, usd: 16.8),
       ];
       final eurUsd = pairSeries(days, 'EUR', 'USD');
-      expect(eurUsd.map((p) => p.value), [closeTo(1.25, 1e-12), closeTo(1.25, 1e-12)]);
+      expect(eurUsd.map((p) => p.value), [
+        closeTo(1.25, 1e-12),
+        closeTo(1.25, 1e-12),
+      ]);
       expect(pairSeries(days, 'EUR', 'MDL').map((p) => p.value), [20, 21]);
     });
 

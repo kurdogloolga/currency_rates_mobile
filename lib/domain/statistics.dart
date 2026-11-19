@@ -91,6 +91,6 @@ class StatisticsCalculator {
 /// Ряд кросс-курса [from]→[to] по дням. Дни, где нет одной из валют,
 /// пропускаются.
 List<RatePoint> pairSeries(List<DailyRates> days, String from, String to) => [
-      for (final d in days)
-        if (d.crossRate(from, to) case final rate?) RatePoint(d.date, rate),
-    ];
+  for (final d in days)
+    if (d.crossRate(from, to) case final rate?) RatePoint(d.date, rate),
+];

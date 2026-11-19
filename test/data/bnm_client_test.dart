@@ -23,10 +23,12 @@ void main() {
 
   test('успешный ответ разбирается в курсы', () async {
     late Uri requested;
-    final client = BnmClient(httpClient: MockClient((req) async {
-      requested = req.url;
-      return xml(fixture);
-    }));
+    final client = BnmClient(
+      httpClient: MockClient((req) async {
+        requested = req.url;
+        return xml(fixture);
+      }),
+    );
 
     final result = await client.fetch(date);
     expect(requested.queryParameters['date'], '19.11.2026');
@@ -34,18 +36,26 @@ void main() {
   });
 
   test('HTTP 404 (дата ещё не опубликована) — null', () async {
-    final client = BnmClient(httpClient: MockClient((_) async => http.Response('', 404)));
+    final client = BnmClient(
+      httpClient: MockClient((_) async => http.Response('', 404)),
+    );
     expect(await client.fetch(date), isNull);
   });
 
   test('корректная пустая публикация — null', () async {
-    final client = BnmClient(httpClient: MockClient(
-        (_) async => xml('<ValCurs Date="19.11.2026" name="x"></ValCurs>')));
+    final client = BnmClient(
+      httpClient: MockClient(
+        (_) async => xml('<ValCurs Date="19.11.2026" name="x"></ValCurs>'),
+      ),
+    );
     expect(await client.fetch(date), isNull);
   });
 
-  Future<void> expectKind(http.Client mock, SourceErrorKind kind,
-      {Duration timeout = const Duration(seconds: 10)}) async {
+  Future<void> expectKind(
+    http.Client mock,
+    SourceErrorKind kind, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
     final client = BnmClient(httpClient: mock, timeout: timeout);
     await expectLater(
       client.fetch(date),
@@ -53,33 +63,72 @@ void main() {
     );
   }
 
-  test('HTTP 500 — ошибка источника', () => expectKind(
-      MockClient((_) async => http.Response('oops', 500)), SourceErrorKind.httpStatus));
+  test(
+    'HTTP 500 — ошибка источника',
+    () => expectKind(
+      MockClient((_) async => http.Response('oops', 500)),
+      SourceErrorKind.httpStatus,
+    ),
+  );
 
-  test('пустое тело при 200 — некорректные данные',
-      () => expectKind(MockClient((_) async => xml('')), SourceErrorKind.invalidData));
+  test(
+    'пустое тело при 200 — некорректные данные',
+    () => expectKind(
+      MockClient((_) async => xml('')),
+      SourceErrorKind.invalidData,
+    ),
+  );
 
-  test('мусор вместо XML — некорректные данные', () => expectKind(
-      MockClient((_) async => xml('<html>maintenance')), SourceErrorKind.invalidData));
+  test(
+    'мусор вместо XML — некорректные данные',
+    () => expectKind(
+      MockClient((_) async => xml('<html>maintenance')),
+      SourceErrorKind.invalidData,
+    ),
+  );
 
-  test('неверная кодировка — некорректные данные', () => expectKind(
+  test(
+    'неверная кодировка — некорректные данные',
+    () => expectKind(
       MockClient((_) async => http.Response.bytes([0xff, 0xfe, 0xfd], 200)),
-      SourceErrorKind.invalidData));
+      SourceErrorKind.invalidData,
+    ),
+  );
 
-  test('курс на будущую дату вместо запрошенной — некорректные данные', () => expectKind(
-      MockClient((_) async => xml(fixture.replaceFirst('19.11.2026', '25.11.2026'))),
-      SourceErrorKind.invalidData));
+  test(
+    'курс на будущую дату вместо запрошенной — некорректные данные',
+    () => expectKind(
+      MockClient(
+        (_) async => xml(fixture.replaceFirst('19.11.2026', '25.11.2026')),
+      ),
+      SourceErrorKind.invalidData,
+    ),
+  );
 
-  test('нет сети — сетевая ошибка', () => expectKind(
-      MockClient((_) async => throw const SocketException('Failed host lookup')),
-      SourceErrorKind.network));
+  test(
+    'нет сети — сетевая ошибка',
+    () => expectKind(
+      MockClient(
+        (_) async => throw const SocketException('Failed host lookup'),
+      ),
+      SourceErrorKind.network,
+    ),
+  );
 
-  test('ClientException — сетевая ошибка', () => expectKind(
+  test(
+    'ClientException — сетевая ошибка',
+    () => expectKind(
       MockClient((_) async => throw http.ClientException('Connection closed')),
-      SourceErrorKind.network));
+      SourceErrorKind.network,
+    ),
+  );
 
-  test('нет ответа дольше тайм-аута — timeout', () => expectKind(
+  test(
+    'нет ответа дольше тайм-аута — timeout',
+    () => expectKind(
       MockClient((_) => Completer<http.Response>().future),
       SourceErrorKind.timeout,
-      timeout: const Duration(milliseconds: 20)));
+      timeout: const Duration(milliseconds: 20),
+    ),
+  );
 }

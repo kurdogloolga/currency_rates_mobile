@@ -8,7 +8,8 @@ const String baseCurrencyName = 'Молдавский лей';
 
 /// Отбрасывает время, оставляя только календарную дату (в UTC, чтобы
 /// переходы на летнее время не сдвигали дни при вычитании).
-DateTime dateOnly(DateTime value) => DateTime.utc(value.year, value.month, value.day);
+DateTime dateOnly(DateTime value) =>
+    DateTime.utc(value.year, value.month, value.day);
 
 /// Ключ даты для хранения: `yyyy-MM-dd`.
 String dateKey(DateTime date) {
@@ -44,25 +45,25 @@ class CurrencyRate {
   double get mdlPerUnit => value / nominal;
 
   Map<String, Object> toJson() => {
-        'code': code,
-        'name': name,
-        'nominal': nominal,
-        'value': value,
-      };
+    'code': code,
+    'name': name,
+    'nominal': nominal,
+    'value': value,
+  };
 
   factory CurrencyRate.fromJson(Map<String, dynamic> json) => CurrencyRate(
-        code: json['code'] as String,
-        name: json['name'] as String,
-        nominal: (json['nominal'] as num).toDouble(),
-        value: (json['value'] as num).toDouble(),
-      );
+    code: json['code'] as String,
+    name: json['name'] as String,
+    nominal: (json['nominal'] as num).toDouble(),
+    value: (json['value'] as num).toDouble(),
+  );
 }
 
 /// Полный набор официальных курсов на одну дату.
 class DailyRates {
   DailyRates({required DateTime date, required List<CurrencyRate> rates})
-      : date = dateOnly(date),
-        rates = List.unmodifiable(rates);
+    : date = dateOnly(date),
+      rates = List.unmodifiable(rates);
 
   final DateTime date;
   final List<CurrencyRate> rates;
@@ -89,16 +90,16 @@ class DailyRates {
   }
 
   Map<String, Object> toJson() => {
-        'date': dateKey(date),
-        'rates': rates.map((r) => r.toJson()).toList(),
-      };
+    'date': dateKey(date),
+    'rates': rates.map((r) => r.toJson()).toList(),
+  };
 
   factory DailyRates.fromJson(Map<String, dynamic> json) => DailyRates(
-        date: DateTime.parse(json['date'] as String),
-        rates: (json['rates'] as List)
-            .map((e) => CurrencyRate.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    date: DateTime.parse(json['date'] as String),
+    rates: (json['rates'] as List)
+        .map((e) => CurrencyRate.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }
 
 /// Точка временного ряда для графиков и статистики.
